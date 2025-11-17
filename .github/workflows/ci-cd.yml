@@ -11,6 +11,8 @@ permissions:
   security-events: write
   actions: read
   id-token: write
+  checks: write
+  pull-requests: write
 
 jobs:
   # Security scanning and code quality
