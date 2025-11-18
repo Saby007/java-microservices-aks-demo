@@ -263,6 +263,13 @@ jobs:
           kubectl get pods -o wide
           kubectl describe pods | grep -E "(Status:|Image:|Events:)" || echo "No pod details available"
           
+          # Check for crash issues by examining logs
+          echo "Checking pod logs for startup issues..."
+          for pod in $(kubectl get pods -o jsonpath='{.items[*].metadata.name}'); do
+            echo "=== Logs for $pod ==="
+            kubectl logs $pod --tail=20 || echo "No logs available for $pod"
+          done
+          
           # Wait for deployments to be ready (increased timeout for image pulls)
           kubectl wait --for=condition=available --timeout=600s deployment/user-service-deployment || echo "User service timeout after 10min"
           kubectl wait --for=condition=available --timeout=600s deployment/order-service-deployment || echo "Order service timeout after 10min"
