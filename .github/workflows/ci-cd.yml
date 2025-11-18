@@ -195,15 +195,32 @@ jobs:
       - name: Configure ACR integration for AKS
         run: |
           echo "Configuring ACR integration..."
-          # Attach ACR to AKS cluster
-          az aks update --name ${{ secrets.AKS_CLUSTER_NAME }} --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --attach-acr ${{ secrets.ACR_LOGIN_SERVER }} || echo "ACR attachment failed, trying image pull secret method..."
           
-          # Alternative: Create image pull secret
+          # Extract ACR name from login server
+          ACR_NAME=$(echo ${{ secrets.ACR_LOGIN_SERVER }} | cut -d'.' -f1)
+          echo "ACR Name: $ACR_NAME"
+          
+          # Method 1: Try ACR attach (preferred for managed identity)
+          echo "Attempting ACR attach..."
+          az aks update --name ${{ secrets.AKS_CLUSTER_NAME }} \
+            --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} \
+            --attach-acr $ACR_NAME || echo "ACR attachment failed, trying alternative methods..."
+          
+          # Method 2: Create proper image pull secret with ACR token
+          echo "Creating image pull secret with ACR token..."
+          kubectl delete secret acr-secret --ignore-not-found=true
+          
+          # Get ACR access token (correct scope for ACR)
+          ACR_TOKEN=$(az acr login --name $ACR_NAME --expose-token --output tsv --query accessToken)
+          
+          # Create secret with proper ACR authentication
           kubectl create secret docker-registry acr-secret \
             --docker-server=${{ secrets.ACR_LOGIN_SERVER }} \
-            --docker-username=${{ secrets.AZURE_CLIENT_ID }} \
-            --docker-password=$(az account get-access-token --scope https://management.azure.com/.default --query accessToken -o tsv) \
-            --namespace default || echo "Secret already exists"
+            --docker-username=00000000-0000-0000-0000-000000000000 \
+            --docker-password=$ACR_TOKEN \
+            --namespace default
+            
+          echo "ACR authentication configured successfully!"
 
       - name: Deploy to AKS (Blue-Green)
         continue-on-error: true
