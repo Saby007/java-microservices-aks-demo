@@ -55,4 +55,10 @@ public class UserService {
                                user.getDepartment().toLowerCase().contains(query.toLowerCase()))
                 .toList();
     }
+
+    public List<User> getUsersByDepartment(String department) {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getDepartment().equalsIgnoreCase(department))
+                .toList();
+    }
 }

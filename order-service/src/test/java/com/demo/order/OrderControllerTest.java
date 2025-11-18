@@ -81,6 +81,6 @@ public class OrderControllerTest {
     void health_ReturnsHealthyStatus() throws Exception {
         mockMvc.perform(get("/api/orders/health"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Order Service is running"));
+                .andExpect(content().string("Order Service is running! Version 2.0 - CI/CD Demo"));
     }
 }

@@ -65,6 +65,15 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    public List<Order> getRecentOrders() {
+        // Return orders with "PENDING" or "PROCESSING" status for demo
+        return orderRepository.findAll().stream()
+                .filter(order -> "PENDING".equals(order.getStatus()) || 
+                               "PROCESSING".equals(order.getStatus()) ||
+                               "COMPLETED".equals(order.getStatus()))
+                .toList();
+    }
+
     private Order validateUserAndCreateOrder(Order order) {
         try {
             // Call user service to validate user exists

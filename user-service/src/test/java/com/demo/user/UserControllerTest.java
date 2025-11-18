@@ -84,4 +84,21 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("John Doe"));
     }
+
+    @Test
+    void getUsersByDepartment_ExistingDepartment_ReturnsUsers() throws Exception {
+        when(userService.getUsersByDepartment("Engineering")).thenReturn(Arrays.asList(testUser));
+
+        mockMvc.perform(get("/api/users/department/Engineering"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("John Doe"))
+                .andExpect(jsonPath("$[0].department").value("Engineering"));
+    }
+
+    @Test
+    void healthCheck_ReturnsHealthStatus() throws Exception {
+        mockMvc.perform(get("/api/users/health"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("User Service is running! Version 2.0 - CI/CD Demo"));
+    }
 }

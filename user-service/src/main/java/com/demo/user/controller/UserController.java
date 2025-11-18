@@ -66,4 +66,16 @@ public class UserController {
         // This could be vulnerable to SQL injection in a real scenario
         return userService.searchUsers(query);
     }
+
+    // New endpoint to demonstrate CI/CD pipeline
+    @GetMapping("/department/{department}")
+    public List<User> getUsersByDepartment(@PathVariable("department") String department) {
+        return userService.getUsersByDepartment(department);
+    }
+
+    // Health check endpoint for demo
+    @GetMapping("/health")
+    public ResponseEntity<String> healthCheck() {
+        return ResponseEntity.ok("User Service is running! Version 2.0 - CI/CD Demo");
+    }
 }

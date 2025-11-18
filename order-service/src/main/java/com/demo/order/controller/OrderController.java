@@ -66,6 +66,19 @@ public class OrderController {
     // Health check endpoint
     @GetMapping("/health")
     public ResponseEntity<String> health() {
-        return ResponseEntity.ok("Order Service is running");
+        return ResponseEntity.ok("Order Service is running! Version 2.0 - CI/CD Demo");
+    }
+
+    // New endpoint for CI/CD demo - get orders by date range
+    @GetMapping("/recent")
+    public List<Order> getRecentOrders() {
+        return orderService.getRecentOrders();
+    }
+
+    // Summary endpoint for dashboard
+    @GetMapping("/summary")
+    public ResponseEntity<String> getOrderSummary() {
+        long totalOrders = orderService.getAllOrders().size();
+        return ResponseEntity.ok(String.format("Total Orders: %d | Service: Order-Service v2.0", totalOrders));
     }
 }
