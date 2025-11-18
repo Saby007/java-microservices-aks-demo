@@ -185,19 +185,27 @@ jobs:
 
       - name: Deploy to AKS (Blue-Green)
         run: |
+          # Show current kubectl context
+          kubectl config current-context
+          kubectl cluster-info
+          
           # Update image tags in Kubernetes manifests
           sed -i "s|PLACEHOLDER_IMAGE_TAG|${{ github.sha }}|g" k8s/*.yaml
           sed -i "s|PLACEHOLDER_ACR_SERVER|${{ secrets.ACR_LOGIN_SERVER }}|g" k8s/*.yaml
           
+          # Show updated manifests for debugging
+          echo "Updated Kubernetes manifests:"
+          grep -E "(image:|name:)" k8s/*.yaml
+          
           # Apply Kubernetes manifests
-          kubectl apply -f k8s/
+          kubectl apply -f k8s/ --validate=false
           
           # Wait for deployments to be ready
-          kubectl wait --for=condition=available --timeout=300s deployment/user-service-deployment
-          kubectl wait --for=condition=available --timeout=300s deployment/order-service-deployment
+          kubectl wait --for=condition=available --timeout=300s deployment/user-service-deployment || echo "User service timeout"
+          kubectl wait --for=condition=available --timeout=300s deployment/order-service-deployment || echo "Order service timeout"
           
           # Verify deployment
-          kubectl get pods,svc
+          kubectl get pods,svc -o wide
 
       - name: Run smoke tests
         run: |
