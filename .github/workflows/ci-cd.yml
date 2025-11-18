@@ -237,12 +237,23 @@ jobs:
           # Apply Kubernetes manifests
           kubectl apply -f k8s/ --validate=false
           
+          # Give pods initial time to start
+          echo "Waiting 30 seconds for pods to start..."
+          sleep 30
+          
+          # Check initial pod status
+          echo "Initial pod status after deployment:"
+          kubectl get pods -o wide
+          kubectl describe pods | grep -E "(Status:|Image:|Events:)" || echo "No pod details available"
+          
           # Wait for deployments to be ready (increased timeout for image pulls)
           kubectl wait --for=condition=available --timeout=600s deployment/user-service-deployment || echo "User service timeout after 10min"
           kubectl wait --for=condition=available --timeout=600s deployment/order-service-deployment || echo "Order service timeout after 10min"
           
-          # Verify deployment
+          # Verify final deployment status
+          echo "Final deployment verification:"
           kubectl get pods,svc -o wide
+          kubectl get events --sort-by=.metadata.creationTimestamp | tail -10
 
       - name: Run smoke tests
         run: |
