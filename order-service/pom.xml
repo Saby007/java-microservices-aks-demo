@@ -56,7 +56,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.demo.orderservice.OrderServiceApplication</mainClass>
+                    <mainClass>com.demo.order.OrderServiceApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
