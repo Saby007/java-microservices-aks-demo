@@ -17,6 +17,8 @@ spec:
         app: order-service
         version: green
     spec:
+      imagePullSecrets:
+      - name: acr-secret
       containers:
       - name: order-service
         image: PLACEHOLDER_ACR_SERVER/order-service:PLACEHOLDER_IMAGE_TAG

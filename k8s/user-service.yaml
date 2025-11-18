@@ -17,6 +17,8 @@ spec:
         app: user-service
         version: green
     spec:
+      imagePullSecrets:
+      - name: acr-secret
       containers:
       - name: user-service
         image: PLACEHOLDER_ACR_SERVER/user-service:PLACEHOLDER_IMAGE_TAG

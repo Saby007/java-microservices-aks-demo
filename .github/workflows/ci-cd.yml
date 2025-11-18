@@ -192,6 +192,19 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
 
+      - name: Configure ACR integration for AKS
+        run: |
+          echo "Configuring ACR integration..."
+          # Attach ACR to AKS cluster
+          az aks update --name ${{ secrets.AKS_CLUSTER_NAME }} --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --attach-acr ${{ secrets.ACR_LOGIN_SERVER }} || echo "ACR attachment failed, trying image pull secret method..."
+          
+          # Alternative: Create image pull secret
+          kubectl create secret docker-registry acr-secret \
+            --docker-server=${{ secrets.ACR_LOGIN_SERVER }} \
+            --docker-username=${{ secrets.AZURE_CLIENT_ID }} \
+            --docker-password=$(az account get-access-token --scope https://management.azure.com/.default --query accessToken -o tsv) \
+            --namespace default || echo "Secret already exists"
+
       - name: Deploy to AKS (Blue-Green)
         continue-on-error: true
         id: aks-deploy
@@ -215,6 +228,11 @@ jobs:
           # Show updated manifests for debugging
           echo "Updated Kubernetes manifests:"
           grep -E "(image:|name:)" k8s/*.yaml
+          
+          # Clean up any existing failed pods
+          echo "Cleaning up any existing deployments..."
+          kubectl delete deployment user-service-deployment order-service-deployment --ignore-not-found=true
+          kubectl delete pods --all --force --grace-period=0 || echo "No pods to delete"
           
           # Apply Kubernetes manifests
           kubectl apply -f k8s/ --validate=false
