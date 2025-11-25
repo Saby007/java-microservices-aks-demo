@@ -39,7 +39,7 @@ public class UserControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        testUser = new User("John Do", "john.doe@example.com", "Engineering");
+        testUser = new User("John Doe", "john.doe@example.com", "Engineering");
         testUser.setId(1L);
     }
 
