@@ -39,7 +39,7 @@ public class OrderControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        testOrder = new Order(1L, "Laptop", 1, new BigDecimal("9999.99"), "PENDING");
+        testOrder = new Order(1L, "Laptop", 1, new BigDecimal("999.99"), "PENDING");
         testOrder.setId(1L);
     }
 
